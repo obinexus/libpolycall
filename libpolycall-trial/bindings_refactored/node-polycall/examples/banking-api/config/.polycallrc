@@ -1,0 +1,31 @@
+# LibPolyCall Node.js Configuration
+# banking-api service configuration
+
+# Port mapping for host:container
+port=3000:433
+
+# Server type specification
+server_type=node
+
+# Service specific settings
+workspace=/mnt/c/Users/OBINexus/Projects/Packages/libpolycall/libpolycall-trial/bindings_refactored/node-polycall/examples/banking-api/src
+log_level=info
+max_connections=100
+
+# Server capabilities
+supports_diagnostics=true
+supports_completion=true
+supports_formatting=true
+
+# Performance settings
+max_memory=512M
+timeout=30
+
+# Security settings
+allow_remote=false
+require_auth=true
+
+# LibPolyCall integration
+polycall_endpoint=./bin/polycall
+binding_type=node-polycall
+service_name=banking-api
