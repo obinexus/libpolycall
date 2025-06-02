@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibPolyCall Dual Testing Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash/4.17.21/lodash.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .server-card {
+            transition: all 0.3s ease;
+        }
+        .server-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .status-online { border-left: 4px solid #10B981; }
+        .status-offline { border-left: 4px solid #EF4444; }
+        .status-unknown { border-left: 4px solid #6B7280; }
+        
+        .log-entry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .log-success { color: #10B981; }
+        .log-error { color: #EF4444; }
+        .log-warning { color: #F59E0B; }
+        .log-info { color: #3B82F6; }
+        
+        .pulse-green { animation: pulse-green 2s infinite; }
+        @keyframes pulse-green {
+            0%, 100% { background-color: rgb(34, 197, 94); }
+            50% { background-color: rgb(22, 163, 74); }
+        }
+        
+        .pulse-red { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0%, 100% { background-color: rgb(239, 68, 68); }
+            50% { background-color: rgb(220, 38, 38); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <nav class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold">🔄 LibPolyCall Dual Testing Interface</h1>
+            <p class="text-blue-100 mt-1">Testing Node.js (8084) and Python (3001) servers simultaneously</p>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        <!-- Server Status Cards -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Node.js Server Card -->
+            <div id="nodeCard" class="server-card bg-white rounded-lg shadow-lg p-6 status-unknown">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-3">🟢</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Node.js PolyCall</h2>
+                            <p class="text-gray-600">Port 8084 • JavaScript Binding</p>
+                        </div>
+                    </div>
+                    <div id="nodeStatus" class="px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700">
+                        Unknown
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="text-center">
+                        <div id="nodeBooks" class="text-2xl font-bold text-blue-600">-</div>
+                        <div class="text-gray-600 text-sm">Books</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="nodeRequests" class="text-2xl font-bold text-green-600">-</div>
+                        <div class="text-gray-600 text-sm">Requests</div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button onclick="testServer('nodejs')" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                        Test Server
+                    </button>
+                    <button onclick="createBook('nodejs')" class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                        Add Book
+                    </button>
+                </div>
+            </div>
+
+            <!-- Python Server Card -->
+            <div id="pythonCard" class="server-card bg-white rounded-lg shadow-lg p-6 status-unknown">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-3">🐍</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">PyPolyCall</h2>
+                            <p class="text-gray-600">Port 3001 • Python Binding</p>
+                        </div>
+                    </div>
+                    <div id="pythonStatus" class="px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700">
+                        Unknown
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="text-center">
+                        <div id="pythonBooks" class="text-2xl font-bold text-purple-600">-</div>
+                        <div class="text-gray-600 text-sm">Books</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="pythonRequests" class="text-2xl font-bold text-green-600">-</div>
+                        <div class="text-gray-600 text-sm">Requests</div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button onclick="testServer('python')" class="flex-1 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors">
+                        Test Server
+                    </button>
+                    <button onclick="createBook('python')" class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                        Add Book
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-bold mb-4">🎮 Control Panel</h3>
+            <div class="grid md:grid-cols-4 gap-4">
+                <button onclick="checkAllServers()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                    🔍 Check All Servers
+                </button>
+                <button onclick="runDualTest()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                    🧪 Run Dual Test
+                </button>
+                <button onclick="loadAllBooks()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors">
+                    📚 Load All Books
+                </button>
+                <button onclick="clearLogs()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                    🗑️ Clear Logs
+                </button>
+            </div>
+        </div>
+
+        <!-- Book Management -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-bold mb-4">📖 Book Management</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-2">Add New Book</h4>
+                    <div class="space-y-4">
+                        <input type="text" id="bookTitle" placeholder="Book Title" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="bookAuthor" placeholder="Author Name" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <div class="flex gap-2">
+                            <select id="targetServer" class="flex-1 px-3 py-2 border rounded-lg">
+                                <option value="both">Both Servers</option>
+                                <option value="nodejs">Node.js Only</option>
+                                <option value="python">Python Only</option>
+                                <option value="python-exclusive">Python Exclusive</option>
+                            </select>
+                            <button onclick="addBook()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
+                                Add Book
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Quick Actions</h4>
+                    <div class="space-y-2">
+                        <button onclick="addTestBooks()" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            📚 Add Test Books to Both Servers
+                        </button>
+                        <button onclick="testPythonExclusive()" class="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                            🐍 Test Python-Exclusive Endpoint
+                        </button>
+                        <button onclick="compareBooks()" class="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
+                            🔄 Compare Books Between Servers
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Display -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Node.js Books -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-blue-600">🟢 Node.js Books</h3>
+                <div id="nodejsBooks" class="space-y-2 max-h-64 overflow-y-auto">
+                    <p class="text-gray-500 italic">No books loaded</p>
+                </div>
+            </div>
+            
+            <!-- Python Books -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-purple-600">🐍 Python Books</h3>
+                <div id="pythonBooks" class="space-y-2 max-h-64 overflow-y-auto">
+                    <p class="text-gray-500 italic">No books loaded</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="bg-gray-900 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold mb-4 text-white">📝 Test Logs</h3>
+            <div id="testLogs" class="bg-black rounded p-4 h-64 overflow-y-auto font-mono text-sm">
+                <div class="log-entry log-info">[Ready] LibPolyCall Dual Testing Interface initialized</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Server configurations
+        const servers = {
+            nodejs: {
+                name: 'Node.js PolyCall',
+                url: 'http://localhost:8084',
+                emoji: '🟢',
+                color: 'blue'
+            },
+            python: {
+                name: 'PyPolyCall',
+                url: 'http://localhost:3001',
+                emoji: '🐍',
+                color: 'purple'
+            }
+        };
+
+        // State management
+        let testCount = 0;
+        let serverStats = {
+            nodejs: { books: 0, requests: 0, status: 'unknown' },
+            python: { books: 0, requests: 0, status: 'unknown' }
+        };
+
+        // Logging functions
+        function log(message, type = 'info', server = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('testLogs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const serverPrefix = server ? `${servers[server].emoji} ` : '';
+            entry.textContent = `[${timestamp}] ${serverPrefix}${message}`;
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('testLogs').innerHTML = 
+                '<div class="log-entry log-info">[Ready] Logs cleared</div>';
+        }
+
+        // Server status management
+        function updateServerStatus(server, status, data = {}) {
+            const statusElement = document.getElementById(`${server}Status`);
+            const cardElement = document.getElementById(`${server}Card`);
+            
+            // Update status display
+            statusElement.className = `px-3 py-1 rounded-full text-sm font-semibold`;
+            cardElement.className = `server-card bg-white rounded-lg shadow-lg p-6`;
+            
+            switch(status) {
+                case 'online':
+                    statusElement.className += ' bg-green-100 text-green-800';
+                    statusElement.textContent = 'Online';
+                    cardElement.className += ' status-online';
+                    if (!statusElement.classList.contains('pulse-green')) {
+                        statusElement.classList.add('pulse-green');
+                    }
+                    break;
+                case 'offline':
+                    statusElement.className += ' bg-red-100 text-red-800';
+                    statusElement.textContent = 'Offline';
+                    cardElement.className += ' status-offline';
+                    statusElement.classList.remove('pulse-green');
+                    break;
+                default:
+                    statusElement.className += ' bg-gray-200 text-gray-700';
+                    statusElement.textContent = 'Unknown';
+                    cardElement.className += ' status-unknown';
+                    statusElement.classList.remove('pulse-green');
+            }
+            
+            // Update stats
+            serverStats[server].status = status;
+            if (data.books !== undefined) {
+                serverStats[server].books = data.books;
+                document.getElementById(`${server}Books`).textContent = data.books;
+            }
+            if (data.requests !== undefined) {
+                serverStats[server].requests = data.requests;
+                document.getElementById(`${server}Requests`).textContent = data.requests;
+            }
+        }
+
+        // API functions
+        async function makeRequest(server, method, path, data = null) {
+            const url = `${servers[server].url}${path}`;
+            
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                serverStats[server].requests++;
+                document.getElementById(`${server}Requests`).textContent = serverStats[server].requests;
+                
+                return { success: response.ok, data: result, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Server testing functions
+        async function testServer(server) {
+            log(`Testing ${servers[server].name}...`, 'info', server);
+            
+            const result = await makeRequest(server, 'GET', '/books');
+            
+            if (result.success) {
+                const books = Array.isArray(result.data) ? result.data : 
+                            (result.data && result.data.data ? result.data.data : []);
+                updateServerStatus(server, 'online', { books: books.length });
+                log(`${servers[server].name} is online with ${books.length} books`, 'success', server);
+            } else {
+                updateServerStatus(server, 'offline');
+                log(`${servers[server].name} is offline: ${result.error || 'Connection failed'}`, 'error', server);
+            }
+        }
+
+        async function checkAllServers() {
+            log('Checking all servers...', 'info');
+            await Promise.all([testServer('nodejs'), testServer('python')]);
+            log('Server check complete', 'success');
+        }
+
+        // Book management functions
+        async function createBook(server, bookData = null) {
+            if (!bookData) {
+                bookData = {
+                    title: `Test Book ${++testCount}`,
+                    author: `Test Author ${testCount}`
+                };
+            }
+            
+            log(`Creating book "${bookData.title}" on ${servers[server].name}`, 'info', server);
+            
+            const result = await makeRequest(server, 'POST', '/books', bookData);
+            
+            if (result.success) {
+                log(`Book created successfully on ${servers[server].name}`, 'success', server);
+                loadBooks(server);
+            } else {
+                log(`Failed to create book on ${servers[server].name}: ${result.error}`, 'error', server);
+            }
+        }
+
+        async function loadBooks(server) {
+            const result = await makeRequest(server, 'GET', '/books');
+            
+            if (result.success) {
+                const books = Array.isArray(result.data) ? result.data : 
+                            (result.data && result.data.data ? result.data.data : []);
+                displayBooks(server, books);
+                updateServerStatus(server, 'online', { books: books.length });
+            }
+        }
+
+        function displayBooks(server, books) {
+            const container = document.getElementById(`${server}Books`);
+            
+            if (books.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 italic">No books found</p>';
+                return;
+            }
+            
+            container.innerHTML = books.map(book => `
+                <div class="bg-gray-50 p-3 rounded border">
+                    <div class="font-semibold">${book.title || 'Untitled'}</div>
+                    <div class="text-gray-600 text-sm">by ${book.author || 'Unknown'}</div>
+                    ${book.created_by ? `<div class="text-xs text-gray-500 mt-1">Created by: ${book.created_by}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function loadAllBooks() {
+            log('Loading books from all servers...', 'info');
+            await Promise.all([loadBooks('nodejs'), loadBooks('python')]);
+            log('All books loaded', 'success');
+        }
+
+        // Advanced testing functions
+        async function addBook() {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const target = document.getElementById('targetServer').value;
+            
+            if (!title || !author) {
+                log('Please enter both title and author', 'warning');
+                return;
+            }
+            
+            const bookData = { title, author };
+            
+            if (target === 'both') {
+                await Promise.all([
+                    createBook('nodejs', bookData),
+                    createBook('python', bookData)
+                ]);
+            } else if (target === 'python-exclusive') {
+                log(`Creating Python-exclusive book "${title}"`, 'info', 'python');
+                const result = await makeRequest('python', 'POST', '/python/books', bookData);
+                if (result.success) {
+                    log('Python-exclusive book created', 'success', 'python');
+                } else {
+                    log(`Failed to create Python-exclusive book: ${result.error}`, 'error', 'python');
+                }
+            } else {
+                await createBook(target, bookData);
+            }
+            
+            // Clear form
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+        }
+
+        async function addTestBooks() {
+            const testBooks = [
+                { title: 'The Art of Programming', author: 'Donald Knuth' },
+                { title: 'Clean Code', author: 'Robert Martin' },
+                { title: 'Python Tricks', author: 'Dan Bader' }
+            ];
+            
+            log('Adding test books to both servers...', 'info');
+            
+            for (const book of testBooks) {
+                await Promise.all([
+                    createBook('nodejs', book),
+                    createBook('python', book)
+                ]);
+            }
+            
+            log('Test books added to both servers', 'success');
+        }
+
+        async function testPythonExclusive() {
+            log('Testing Python-exclusive endpoint...', 'info', 'python');
+            
+            const testBook = {
+                title: 'Python-Only Book',
+                author: 'PyPolyCall Author'
+            };
+            
+            const result = await makeRequest('python', 'POST', '/python/books', testBook);
+            
+            if (result.success) {
+                log('Python-exclusive endpoint working correctly', 'success', 'python');
+            } else {
+                log(`Python-exclusive endpoint failed: ${result.error}`, 'error', 'python');
+            }
+        }
+
+        async function compareBooks() {
+            log('Comparing books between servers...', 'info');
+            
+            const [nodeResult, pythonResult] = await Promise.all([
+                makeRequest('nodejs', 'GET', '/books'),
+                makeRequest('python', 'GET', '/books')
+            ]);
+            
+            if (nodeResult.success && pythonResult.success) {
+                const nodeBooks = Array.isArray(nodeResult.data) ? nodeResult.data : 
+                                (nodeResult.data && nodeResult.data.data ? nodeResult.data.data : []);
+                const pythonBooks = Array.isArray(pythonResult.data) ? pythonResult.data : 
+                                  (pythonResult.data && pythonResult.data.data ? pythonResult.data.data : []);
+                
+                log(`Node.js: ${nodeBooks.length} books, Python: ${pythonBooks.length} books`, 'info');
+                
+                if (nodeBooks.length === pythonBooks.length) {
+                    log('Book counts match between servers', 'success');
+                } else {
+                    log('Book counts differ between servers', 'warning');
+                }
+            } else {
+                log('Failed to compare books - one or both servers unavailable', 'error');
+            }
+        }
+
+        async function runDualTest() {
+            log('🧪 Starting comprehensive dual test...', 'info');
+            
+            // Test 1: Check server connectivity
+            log('Step 1: Testing server connectivity', 'info');
+            await checkAllServers();
+            
+            // Test 2: Create test books
+            log('Step 2: Creating test books', 'info');
+            const testBook = {
+                title: `Dual Test Book ${Date.now()}`,
+                author: 'Dual Test Author'
+            };
+            
+            await Promise.all([
+                createBook('nodejs', testBook),
+                createBook('python', testBook)
+            ]);
+            
+            // Test 3: Verify books
+            log('Step 3: Verifying book creation', 'info');
+            await loadAllBooks();
+            
+            // Test 4: Python-exclusive test
+            log('Step 4: Testing Python-exclusive features', 'info');
+            await testPythonExclusive();
+            
+            // Test 5: Compare results
+            log('Step 5: Comparing results', 'info');
+            await compareBooks();
+            
+            log('🎉 Dual test completed!', 'success');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('LibPolyCall Dual Testing Interface loaded', 'success');
+            
+            // Auto-check servers on load
+            setTimeout(checkAllServers, 1000);
+            
+            // Set up periodic status checks
+            setInterval(checkAllServers, 30000); // Every 30 seconds
+        });
+    </script>
+</body>
+</html>

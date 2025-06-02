@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyCall Library Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash/4.17.21/lodash.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">PolyCall Library Management System</h1>
+            <div id="serverStatus" class="text-sm mt-1">Server Status: Checking...</div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4">
+        <!-- Book Management Section -->
+        <section class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Book Management</h2>
+            <form id="addBookForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">Title</label>
+                    <input type="text" id="bookTitle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Author</label>
+                    <input type="text" id="bookAuthor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" required>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Book</button>
+            </form>
+        </section>
+
+        <!-- Book List Section -->
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">Book List</h2>
+            <button id="refreshBooks" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4">
+                Refresh List
+            </button>
+            <div id="bookList" class="divide-y">
+                <!-- Books will be listed here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Test Client Section -->
+    <div class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4">
+        <div class="container mx-auto">
+            <h3 class="font-bold mb-2">Test Client Console</h3>
+            <div id="testConsole" class="bg-gray-900 p-2 rounded h-32 overflow-auto font-mono text-sm">
+                <!-- Test output will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        // Utility function for logging to test console
+        function log(message, type = 'info') {
+            const console = document.getElementById('testConsole');
+            const entry = document.createElement('div');
+            entry.className = type === 'error' ? 'text-red-500' : 'text-green-500';
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        // Check server status
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_URL}/books`);
+                if (response.ok) {
+                    document.getElementById('serverStatus').textContent = 'Server Status: Connected';
+                    document.getElementById('serverStatus').className = 'text-sm mt-1 text-green-200';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').textContent = 'Server Status: Disconnected';
+                document.getElementById('serverStatus').className = 'text-sm mt-1 text-red-200';
+                return false;
+            }
+        }
+
+        // Fetch and display books
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API_URL}/books`);
+                const data = await response.json();
+                
+                const bookList = document.getElementById('bookList');
+                bookList.innerHTML = '';
+                
+                if (Array.isArray(data)) {
+                    data.forEach(book => {
+                        const bookElement = document.createElement('div');
+                        bookElement.className = 'py-4';
+                        bookElement.innerHTML = `
+                            <h3 class="font-bold">${book.title}</h3>
+                            <p class="text-gray-600">by ${book.author}</p>
+                        `;
+                        bookList.appendChild(bookElement);
+                    });
+                }
+                log('Books loaded successfully');
+            } catch (error) {
+                log(`Error loading books: ${error.message}`, 'error');
+            }
+        }
+
+        // Add new book
+        document.getElementById('addBookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/books`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, author })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`Book added: ${title} by ${author}`);
+                    loadBooks();
+                    e.target.reset();
+                } else {
+                    throw new Error(await response.text());
+                }
+            } catch (error) {
+                log(`Error adding book: ${error.message}`, 'error');
+            }
+        });
+
+        // Refresh books list
+        document.getElementById('refreshBooks').addEventListener('click', loadBooks);
+
+        // Initial setup
+        async function initialize() {
+            if (await checkServerStatus()) {
+                await loadBooks();
+            }
+            // Check server status periodically
+            setInterval(checkServerStatus, 5000);
+        }
+
+        initialize();
+    </script>
+</body>
+</html>

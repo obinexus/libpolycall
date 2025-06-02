@@ -1,0 +1,34 @@
+{
+  "project_name": "todolist-manager",
+  "description": "Task management system with priority scheduling and collaboration",
+  "port": 5002,
+  "database": "todolist_tasks.db",
+  "endpoints": [
+    "/tasks",
+    "/projects",
+    "/priorities",
+    "/assignments",
+    "/deadlines"
+  ],
+  "features": [
+    "priority_scheduling",
+    "task_dependencies",
+    "collaboration_tracking"
+  ],
+  "tech_stack": [
+    "FastAPI",
+    "SQLite",
+    "Pydantic",
+    "LibPolyCall"
+  ],
+  "pypolycall_integration": {
+    "enabled": true,
+    "binding_type": "python-polycall",
+    "port_mapping": "3001:444"
+  },
+  "development": {
+    "debug": true,
+    "auto_reload": true,
+    "log_level": "info"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "project_name": "banking-system",
+  "description": "Secure banking transaction processing with real-time validation",
+  "port": 5001,
+  "database": "banking_transactions.db",
+  "endpoints": [
+    "/accounts",
+    "/transactions",
+    "/transfers",
+    "/balances",
+    "/audit"
+  ],
+  "features": [
+    "transaction_validation",
+    "audit_logging",
+    "balance_verification"
+  ],
+  "tech_stack": [
+    "FastAPI",
+    "SQLite",
+    "Pydantic",
+    "LibPolyCall"
+  ],
+  "pypolycall_integration": {
+    "enabled": true,
+    "binding_type": "python-polycall",
+    "port_mapping": "3001:444"
+  },
+  "development": {
+    "debug": true,
+    "auto_reload": true,
+    "log_level": "info"
+  }
+}

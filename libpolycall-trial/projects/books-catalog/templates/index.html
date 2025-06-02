@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Catalog - LibPolyCall System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold">
+                        📚 Books Catalog
+                    </div>
+                    <div class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                        LibPolyCall Integration
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm">Port: 5003</div>
+                    <div id="connection-status" class="w-3 h-3 bg-green-400 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- System Overview -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">System Overview</h2>
+            <p class="text-gray-600 mb-6">Library management system with inventory and lending tracking</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">🔧 Technology Stack</h3>
+                    <ul class="text-sm text-blue-600">
+                        <li>• FastAPI</li><li>• SQLite</li><li>• Pydantic</li><li>• LibPolyCall</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">⚡ Core Features</h3>
+                    <ul class="text-sm text-green-600">
+                        <li>• Inventory Management</li><li>• Lending Tracking</li><li>• Search Optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">🌐 API Endpoints</h3>
+                    <ul class="text-sm text-purple-600">
+                        <li>• /books</li><li>• /authors</li><li>• /categories</li>
+                        <li>• + 2 more</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Dashboard -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <h3 class="font-semibold text-gray-800 mb-3">📖 Book Catalog</h3>
+                <p class="text-gray-600 mb-4">Browse and search book collection</p>
+                <button onclick="loadBooks()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Browse Books
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <h3 class="font-semibold text-gray-800 mb-3">📤 Lending System</h3>
+                <p class="text-gray-600 mb-4">Manage book lending and returns</p>
+                <button onclick="loadLending()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Lending Status
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <h3 class="font-semibold text-gray-800 mb-3">📊 Inventory</h3>
+                <p class="text-gray-600 mb-4">Track book availability and inventory</p>
+                <button onclick="loadInventory()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    View Inventory
+                </button>
+            </div>
+
+        </div>
+
+        <!-- API Testing Interface -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🧪 API Testing Interface</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold mb-3">Quick Actions</h3>
+                    <div class="space-y-2">
+                        <button onclick="testEndpoint('/health')" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Test Health Check
+                        </button>
+                        <button onclick="testEndpoint('/diagnostics')" class="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            System Diagnostics
+                        </button>
+                        <button onclick="testPyPolyCall()" class="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                            PyPolyCall Status
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-3">API Response</h3>
+                    <div id="api-response" class="bg-gray-100 p-4 rounded font-mono text-sm h-40 overflow-auto">
+                        Ready for testing...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for API Testing -->
+    <script>
+        // API testing functionality
+        async function testEndpoint(endpoint) {
+            const responseDiv = document.getElementById('api-response');
+            responseDiv.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // Update connection status
+                updateConnectionStatus(true);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+                updateConnectionStatus(false);
+            }
+        }
+        
+        async function testPyPolyCall() {
+            await testEndpoint('/diagnostics');
+        }
+        
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.className = connected 
+                ? 'w-3 h-3 bg-green-400 rounded-full'
+                : 'w-3 h-3 bg-red-400 rounded-full';
+        }
+        
+        // Auto-test health on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            testEndpoint('/health');
+        });
+        
+        
+        async function loadBooks() {
+            await testEndpoint('/books');
+        }
+        
+        async function loadLending() {
+            await testEndpoint('/lending');
+        }
+        
+        async function loadInventory() {
+            // Custom inventory loading logic
+            document.getElementById('api-response').textContent = 'Loading book inventory...';
+        }
+
+    </script>
+</body>
+</html>
