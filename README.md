@@ -1,5 +1,6 @@
 ## Project Overview
 
+![LibPolyCall Favourite ICON](./favicon.png)
 **LibPolyCall** is a polymorphic `call` library written in C that provides unified API integration across multiple programming languages and systems. The project implements a zero-trust security model with advanced telemetry and state management capabilities.
 
 ## Core Architecture
