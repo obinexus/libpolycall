@@ -1,0 +1,229 @@
+{
+  "$schema": "https://obinexus.com/schemas/polycall-automation-v2.0.json",
+  "polycall_version": "2.0.0",
+  "project_name": "libpolycall-aegis-v2",
+  "methodology": "OBINexus-Waterfall",
+  
+  "automation_config": {
+    "production_mode": true,
+    "auto_discovery": true,
+    "cli_integration": true,
+    "telemetry_enabled": true,
+    "zero_overhead_enforcement": true
+  },
+
+  "dop_adapter_config": {
+    "config_file": "config/dop_adapter_config.json",
+    "auto_load": true,
+    "validation": "cryptographic_standard_v1.0",
+    "compliance_check": ["nasa_std_8739_8", "zero_overhead_marshalling"]
+  },
+
+  "binding_registry": {
+    "python": {
+      "package": "pypolycall",
+      "version": "2.0.0",
+      "bridge_config": "config/python_bridge_config.json",
+      "server_pattern": "server.py",
+      "protocol_path": "pypolycall/protocol",
+      "auto_register": true,
+      "scan_folders": [
+        "src/python",
+        "components/python",
+        "services/python"
+      ]
+    },
+    "node": {
+      "package": "nodepolycall",
+      "version": "2.0.0", 
+      "bridge_config": "config/node_bridge_config.json",
+      "server_pattern": "server.js",
+      "protocol_path": "nodepolycall/protocol",
+      "auto_register": true,
+      "scan_folders": [
+        "src/node",
+        "components/node", 
+        "services/node"
+      ]
+    },
+    "golang": {
+      "package": "gopolycall",
+      "version": "2.0.0",
+      "bridge_config": "config/golang_bridge_config.json", 
+      "server_pattern": "server.go",
+      "protocol_path": "gopolycall/protocol",
+      "auto_register": true,
+      "scan_folders": [
+        "src/go",
+        "components/go",
+        "services/go"
+      ]
+    },
+    "java": {
+      "package": "javapolycall",
+      "version": "2.0.0",
+      "bridge_config": "config/java_bridge_config.json",
+      "server_pattern": "Server.java",
+      "protocol_path": "javapolycall/protocol", 
+      "auto_register": true,
+      "scan_folders": [
+        "src/java",
+        "components/java",
+        "services/java"
+      ]
+    }
+  },
+
+  "cli_commands": {
+    "init": {
+      "description": "Initialize polycall project with DOP adapter configuration",
+      "action": "dop_adapter_init",
+      "auto_discovery": true,
+      "validation": "mandatory"
+    },
+    "register": {
+      "description": "Register component with automatic binding detection",
+      "action": "dop_component_register", 
+      "folder_scan": true,
+      "namespace_detection": true
+    },
+    "start": {
+      "description": "Start polycall runtime with all registered components",
+      "action": "runtime_start",
+      "binding_coordination": true,
+      "telemetry_startup": true
+    },
+    "status": {
+      "description": "Show runtime status and component health",
+      "action": "runtime_status",
+      "component_health": true,
+      "telemetry_summary": true
+    },
+    "telemetry": {
+      "description": "Monitor system telemetry and performance metrics",
+      "action": "telemetry_observe",
+      "silent_observation": true,
+      "guid_tracking": true
+    }
+  },
+
+  "folder_mapping": {
+    "auto_discovery": {
+      "enabled": true,
+      "scan_patterns": [
+        "**/*server.py",
+        "**/*server.js", 
+        "**/*server.go",
+        "**/*Server.java"
+      ],
+      "exclude_patterns": [
+        "**/node_modules/**",
+        "**/target/**",
+        "**/__pycache__/**",
+        "**/vendor/**"
+      ]
+    },
+    "namespace_detection": {
+      "enabled": true,
+      "strategy": "folder_structure",
+      "separator": ".",
+      "auto_registration": true
+    }
+  },
+
+  "command_mapping": {
+    "./polycall bankcard": {
+      "binding": "python",
+      "component": "bankcard_component",
+      "server_file": "src/python/bankcard/server.py",
+      "isolation": "strict",
+      "security_level": "banking"
+    },
+    "./polycall ads": {
+      "binding": "node", 
+      "component": "ads_service",
+      "server_file": "src/node/ads/server.js",
+      "isolation": "paranoid",
+      "security_level": "untrusted"
+    },
+    "./polycall cache": {
+      "binding": "golang",
+      "component": "cache_service", 
+      "server_file": "src/go/cache/server.go",
+      "isolation": "strict",
+      "security_level": "high_performance"
+    },
+    "./polycall enterprise": {
+      "binding": "java",
+      "component": "enterprise_service",
+      "server_file": "src/java/enterprise/Server.java", 
+      "isolation": "container",
+      "security_level": "enterprise"
+    }
+  },
+
+  "production_automation": {
+    "deployment": {
+      "strategy": "zero_downtime",
+      "validation": "cryptographic_integrity",
+      "rollback": "bounded_delta_replay",
+      "health_checks": "continuous"
+    },
+    "monitoring": {
+      "telemetry": "prometheus_format",
+      "alerting": "threshold_based", 
+      "guid_tracking": "enabled",
+      "silent_observation": true
+    },
+    "scaling": {
+      "strategy": "component_based",
+      "resource_limits": "bridge_config_enforced",
+      "isolation_preservation": true
+    }
+  },
+
+  "security_enforcement": {
+    "cryptographic_validation": "mandatory",
+    "isolation_boundaries": "strict_enforcement",
+    "audit_trail": "secure_pattern_hash_refs",
+    "zero_trust": true,
+    "component_separation": true
+  },
+
+  "development_integration": {
+    "ide_support": {
+      "vscode": "polycall_extension",
+      "intellij": "polycall_plugin",
+      "vim": "polycall_syntax"
+    },
+    "testing": {
+      "unit_tests": "binding_specific",
+      "integration_tests": "cross_binding",
+      "security_tests": "isolation_validation"
+    },
+    "debugging": {
+      "component_debugging": "isolated_debug",
+      "protocol_debugging": "marshalling_trace",
+      "telemetry_debugging": "silent_observation"
+    }
+  },
+
+  "compliance_validation": {
+    "nasa_std_8739_8": {
+      "deterministic_execution": "validated",
+      "bounded_resources": "enforced", 
+      "formal_verification": "mathematical_proofs",
+      "graceful_degradation": "algorithm_1_recovery"
+    },
+    "cryptographic_standard": {
+      "pattern_enforcement": "regex_automaton",
+      "canonical_mapping": "isomorphic_reduction",
+      "security_guarantees": "universal_primitives"
+    },
+    "zero_overhead_marshalling": {
+      "o1_guarantee": "theorem_3_1_proven",
+      "soundness": "theorem_4_1_proven", 
+      "recovery_correctness": "theorem_5_1_proven"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+# LibPolyCall ignore patterns
+# Files and directories to be ignored by the LibPolyCall system
+
+# Development artifacts
+**/.git/
+**/.vscode/
+**/.idea/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.coverage
+**/node_modules/
+**/.npm/
+**/.yarn/
+**/venv/
+**/.env/
+**/.venv/
+
+# Build artifacts
+**/build/
+**/dist/
+**/*.egg-info/
+**/*.egg
+**/*.so
+**/*.dll
+**/*.dylib
+**/target/
+
+# Temporary and cache files
+**/*.tmp
+**/*.bak
+**/*.swp
+**/*.log
+**/logs/
+**/temp/
+**/tmp/
+**/.DS_Store
+**/Thumbs.db
+
+# Configuration backups
+**/*.conf.bak
+**/*.polycallrc.old
+**/*.polycallfile.bak
+
+# Security sensitive files
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/*.pfx
+**/credentials.json
+**/secrets.json
+**/tokens.json
+
+# Project specific
+**/test_output/
+**/benchmarks/results/
