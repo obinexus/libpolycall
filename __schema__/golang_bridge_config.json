@@ -1,0 +1,152 @@
+{
+  "$schema": "https://obinexus.com/schemas/bridge-config-v2.0.json",
+  "bridge_version": "2.0.0",
+  "language": "golang",
+  "binding_type": "driver",
+  
+  "runtime_config": {
+    "go_version": "1.21+",
+    "module_path": "github.com/obinexus/gopolycall",
+    "build_mode": "c-shared",
+    "server_file": "server.go",
+    "main_package": "./cmd/server"
+  },
+
+  "protocol_separation": {
+    "protocol_module": "gopolycall/protocol",
+    "communication_layer": "gopolycall/protocol/marshalling.go",
+    "state_sync": "gopolycall/protocol/statemanager.go", 
+    "cryptographic_layer": "gopolycall/protocol/cryptohandler.go",
+    "bypass_protocol": false
+  },
+
+  "ffi_interface": {
+    "version": "2.0",
+    "allowed_methods": [
+      "dop_adapter_init",
+      "dop_adapter_invoke",
+      "dop_adapter_get_state",
+      "dop_adapter_reset", 
+      "dop_adapter_destroy"
+    ],
+    "method_binding": "cgo",
+    "library_path": "libpolycall_dop.so",
+    "export_symbols": true
+  },
+
+  "resource_limits": {
+    "default_memory_mb": 16,
+    "max_memory_mb": 64,
+    "default_cpu_time_ms": 1000,
+    "max_cpu_time_ms": 10000,
+    "max_goroutines": 100,
+    "max_file_descriptors": 32,
+    "network_isolation": "strict"
+  },
+
+  "security_policy": {
+    "isolation_level": "strict",
+    "allow_syscalls": "restricted",
+    "allow_network": "localhost_only",
+    "allow_filesystem_write": false,
+    "cryptographic_validation": "mandatory",
+    "state_validation": true,
+    "memory_protection": true
+  },
+
+  "component_specific_configs": {
+    "cache_service": {
+      "package": "./internal/cache",
+      "struct": "CacheServer",
+      "security_level": "high_performance",
+      "isolation": "strict",
+      "memory_limit_mb": 32,
+      "cpu_time_limit_ms": 500,
+      "network_access": false,
+      "file_access": "memory_only",
+      "required_modules": [
+        "github.com/dgraph-io/ristretto@v0.1.1",
+        "github.com/obinexus/gopolycall@v2.0.0"
+      ]
+    },
+
+    "metrics_collector": {
+      "package": "./internal/metrics",
+      "struct": "MetricsServer", 
+      "security_level": "observability",
+      "isolation": "container",
+      "memory_limit_mb": 16,
+      "cpu_time_limit_ms": 2000,
+      "network_access": "metrics_only",
+      "file_access": "read_only",
+      "required_modules": [
+        "github.com/prometheus/client_golang@v1.16.0",
+        "github.com/obinexus/gopolycall@v2.0.0"
+      ]
+    }
+  },
+
+  "build_configuration": {
+    "optimization_level": "-O2",
+    "static_linking": true,
+    "strip_symbols": true,
+    "race_detection": false,
+    "deadlock_detection": false,
+    "memory_sanitizer": false
+  },
+
+  "telemetry": {
+    "enabled": true,
+    "silent_observation": true,
+    "metrics": [
+      "memory_usage",
+      "cpu_time",
+      "goroutine_count",
+      "gc_frequency",
+      "invocation_count", 
+      "error_rate",
+      "response_time"
+    ],
+    "export_format": "prometheus", 
+    "guid_tracking": true,
+    "pprof_enabled": false
+  },
+
+  "error_handling": {
+    "graceful_degradation": true,
+    "error_isolation": true,
+    "recovery_mechanism": "bounded_delta_replay",
+    "max_retry_attempts": 3,
+    "timeout_escalation": true,
+    "panic_recovery": true
+  },
+
+  "development_tools": {
+    "debug_mode": false,
+    "profiling": false,
+    "hot_reload": false,
+    "race_detection": false,
+    "coverage_analysis": false
+  },
+
+  "automation": {
+    "auto_discovery": true,
+    "cli_integration": true,
+    "polycall_file_support": true,
+    "folder_mapping": {
+      "scan_pattern": "**/*server.go",
+      "auto_register": true,
+      "namespace_detection": true,
+      "module_detection": true
+    }
+  },
+
+  "state_management": {
+    "state_validation": true,
+    "schema_enforcement": true,
+    "delta_compression": true,
+    "checkpoint_interval": 500,
+    "recovery_enabled": true,
+    "concurrent_access": "mutex_protected"
+  }
+}
