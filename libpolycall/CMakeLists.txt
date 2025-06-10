@@ -374,4 +374,4 @@ install(
 )
 
 # CPack configuration
-include(CPack)
+include(CPack)include(cmake/sinphase_phase_gates.cmake)
