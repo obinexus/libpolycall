@@ -190,7 +190,7 @@ objects: $(OBJS) $(MAIN_OBJ)
 .PHONY: verify-objects
 verify-objects: $(OBJS) $(MAIN_OBJ)
 ifdef CMD_SHELL
-	@$(CC) -r -nostdlib -o build\.object-check.o $(OBJS) $(MAIN_OBJ) >NUL 2>&1 || (echo Stale object files detected; recompiling all objects. & del /q build\*.o build\*.d 2>NUL & $(MAKE) --no-print-directory objects)
+	@echo Verifying Windows object files...
 	@$(CC) -r -nostdlib -o build\.object-check.o $(OBJS) $(MAIN_OBJ)
 	@del /q build\.object-check.o
 else
@@ -291,3 +291,4 @@ help:
 	@echo ""
 	@echo "Options:"
 	@echo "  USE_OPENSSL=1 - Link libssl/libcrypto when crypto APIs are used"
+
